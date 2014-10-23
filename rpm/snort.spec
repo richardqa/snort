@@ -12,11 +12,10 @@
 # See pg 399 of _Red_Hat_RPM_Guide_ for rpmbuild --with and --without options.
 ################################################################
 
-%global debug_package %{nil}
-
 # Other useful bits
 %define SnortRulesDir %{_sysconfdir}/snort/rules
 %define noShell /bin/false
+%global debug_package %{nil}
 
 # Handle the options noted above.
 # Default of no openAppId, but --with openappid will enable it
@@ -56,13 +55,13 @@ Name: %{realname}
 Summary: An open source Network Intrusion Detection System (NIDS)
 Conflicts: %{realname}-openappid
 %endif
-Version: 2.9.7.0_rc
+Version: 2.9.7.0
 Epoch: 1
 Release: %{release}
 Group: Applications/Internet
 License: GPL
 Url: http://www.snort.org/
-Source0: http://www.snort.org/downloads/snortdev/%{realname}-%{version}.tar.gz
+Source0: http://www.snort.org/downloads/snort/%{realname}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Packager: Official Snort.org %{for_distro}

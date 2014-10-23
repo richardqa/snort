@@ -1,3 +1,20 @@
+2014-10-10 Carter Waxman <cwaxman@cisco.com>
+Snort 2.9.7.0
+    * src/build.h: updating build number to 149
+    
+    * src/dynamic-preprocessors/appid/spp_appid.c:
+      Fixed issue in which AppID would be disabled after a reload.
+    
+    * configure.in:
+      Added dependency for OpenSSL when building with --enable-openappid
+    
+    * doc/: README.http_inspect, snort_manual.pdf, snort_manual.tex:
+      Added documentation for the new Extended X-Forwarded-For
+      capabilities
+
+    * src/preprocessors/Stream6/snort_stream_tcp.c:
+      Reused the TcpSessionCleanup logic to add a function to flush queued unacked segments.
+
 2014-09-15 Joel Cornett <jocornet@cisco.com>
 Snort 2.9.7.0-rc
     * src/build.h:

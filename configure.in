@@ -6,7 +6,7 @@ AC_PREREQ(2.50)
 AM_CONFIG_HEADER(config.h)
 # When changing the snort version, please also update the VERSION
 # definition in "src/win32/WIN32-Includes/config.h"
-AM_INIT_AUTOMAKE(snort,2.9.7.0_rc)
+AM_INIT_AUTOMAKE(snort,2.9.7.0)
 
 NO_OPTIMIZE="no"
 ADD_WERROR="no"
@@ -1246,8 +1246,15 @@ if test "x$enable_open_appid" = "xyes"; then
 
     else
         echo
-        echo "   WARN!  LuaJIT library not found. For better performance, go get it from"
+        echo "   ERROR!  LuaJIT library not found. For better performance, go get it from"
         echo "   http://www.luajit.org/."
+        AC_MSG_ERROR("Fatal!")
+    fi
+
+    AC_CHECK_HEADER(openssl/x509.h, [AC_CHECK_LIB(crypto, d2i_X509, openssl_x509=yes, openssl_x509=no)],openssl_x509=no)
+    if test "x$openssl_x509" = "xno"; then
+        echo
+        echo "   ERROR!  openssl/x509.h or openssl library not found." 
         AC_MSG_ERROR("Fatal!")
     fi
 fi

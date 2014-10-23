@@ -1,6 +1,6 @@
 ; $Id$
 ;
-; NSIS Installation script for Snort 2.9.7 rc Win32
+; NSIS Installation script for Snort 2.9.7.0 Win32
 ; Written by Chris Reid <chris.reid@codecraftconsultants.com>
 ; Updated by Steven Sturges <ssturges@sourcefire.com>
 ;
@@ -11,7 +11,7 @@
 ; Note that this NSIS script is designed for NSIS version 2.09.
 ;
 
-Name "Snort 2.9.7.0 RC"
+Name "Snort 2.9.7.0"
 
 CRCCheck On
 
@@ -23,7 +23,7 @@ CRCCheck On
 ;Configuration
 
   ;General
-  OutFile "Snort_2_9_7_0_rc_Installer.exe"  ; The name of the installer executable
+  OutFile "Snort_2_9_7_0_Installer.exe"  ; The name of the installer executable
 
   ;Folder selection page
   InstallDir "C:\Snort"

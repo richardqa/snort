@@ -783,11 +783,9 @@ ProcessSSH( void* ipacketp, void* contextp )
                     sessp->num_client_bytes += (packetp->payload_size - offset);
                 }
 
-#ifdef FEAT_OPEN_APPID
-                if ( (sessp->num_client_bytes >=
-                     ssh_eval_config->MaxClientBytes ) && (_dpd.getAppId(packetp->stream_session) != APP_ID_SFTP))
-#else
                 if ( sessp->num_client_bytes >= ssh_eval_config->MaxClientBytes )
+#ifdef FEAT_OPEN_APPID
+                if ((_dpd.getAppId(packetp->stream_session) != APP_ID_SFTP))
 #endif
                 {
                     /* Probable exploit in progress.*/

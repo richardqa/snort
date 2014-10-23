@@ -583,6 +583,7 @@ static int FlushStream(
         const uint8_t *flushbuf_end);
 static void TcpSessionCleanup(SessionControlBlock *ssn, int freeApplicationData);
 static void TcpSessionCleanupWithFreeApplicationData(void *ssn);
+static void FlushQueuedSegs(SessionControlBlock *ssn, TcpSession *tcpssn);
 
 int s5TcpStreamSizeInit(struct _SnortConfig *sc, char *name, char *parameters, void **dataPtr);
 int s5TcpStreamSizeEval(void *p, const uint8_t **cursor, void *dataPtr);
@@ -1019,11 +1020,11 @@ bool StreamActivatePafTcp (SessionControlBlock *scb, int dir, int16_t service_po
 
                 if ( type == PAF_TYPE_SERVICE )
                 {
-                    InitFlushMgrByService(scb, trk, service_port, true, flush_policy);
+                    InitFlushMgrByService(scb, trk, service_port, false, flush_policy);
                 }
                 else
                 {
-                    InitFlushMgrByPort(scb, trk, service_port, true, flush_policy, true);
+                    InitFlushMgrByPort(scb, trk, service_port, false, flush_policy, true);
                 }
             }
             break;
@@ -1071,11 +1072,11 @@ bool StreamActivatePafTcp (SessionControlBlock *scb, int dir, int16_t service_po
 
                 if ( type == PAF_TYPE_SERVICE )
                 {
-                    InitFlushMgrByService(scb, trk, service_port, true, flush_policy);
+                    InitFlushMgrByService(scb, trk, service_port, false, flush_policy);
                 }
                 else
                 {
-                    InitFlushMgrByPort(scb, trk, service_port, true, flush_policy, true);
+                    InitFlushMgrByPort(scb, trk, service_port, false, flush_policy, true);
                 }
             }
             break;
@@ -1137,6 +1138,11 @@ void StreamSetSessionDecryptedTcp( SessionControlBlock *scb, bool enable )
 
     if ( !tcpssn )
         return;
+
+    if((SegsToFlush(&tcpssn->server, 1) > 0) || (SegsToFlush(&tcpssn->client, 1) > 0))
+    {
+        FlushQueuedSegs(scb, tcpssn);
+    }
 
     tcpssn->session_decrypted = enable;
 }
@@ -4940,21 +4946,9 @@ static void TcpSessionClear (SessionControlBlock* scb, TcpSession* tcpssn, int f
     STREAM_DEBUG_WRAP( DebugMessage(DEBUG_STREAM_STATE,
                 "After cleaning, %lu bytes in use\n", session_mem_in_use););
 }
-
-static void TcpSessionCleanup(SessionControlBlock *scb, int freeApplicationData)
+static void FlushQueuedSegs(SessionControlBlock *scb, TcpSession *tcpssn)
 {
     DAQ_PktHdr_t tmp_pcap_hdr;
-    TcpSession *tcpssn = NULL;
-
-    if (scb->proto_specific_data)
-        tcpssn = (TcpSession *)scb->proto_specific_data->data;
-
-    if (!tcpssn)
-    {
-        /* Huh? */
-        StreamUpdatePerfBaseState(&sfBase, scb, TCP_STATE_CLOSED);
-        return;
-    }
 
     /* Flush ack'd data on both sides as necessary */
     {
@@ -5085,6 +5079,24 @@ static void TcpSessionCleanup(SessionControlBlock *scb, int freeApplicationData)
         }
 
     }
+
+}
+
+static void TcpSessionCleanup(SessionControlBlock *scb, int freeApplicationData)
+{
+    TcpSession *tcpssn = NULL;
+
+    if (scb->proto_specific_data)
+        tcpssn = (TcpSession *)scb->proto_specific_data->data;
+
+    if (!tcpssn)
+    {
+        /* Huh? */
+        StreamUpdatePerfBaseState(&sfBase, scb, TCP_STATE_CLOSED);
+        return;
+    }
+
+    FlushQueuedSegs(scb, tcpssn);
 
     TcpSessionClear(scb, tcpssn, freeApplicationData);
 }

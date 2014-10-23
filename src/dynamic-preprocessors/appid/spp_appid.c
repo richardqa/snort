@@ -83,6 +83,7 @@ static void AppIdReload(struct _SnortConfig *sc, char *args, void **new_config)
     tSfPolicyId policy_id = _dpd.getParserPolicy(sc);
 
     _dpd.addPreproc(sc, (void (*)(void *, void *))AppIdProcess, (PRIORITY_TRANSPORT + 1), PP_APP_ID, PROTO_BIT__ALL);
+    _dpd.sessionAPI->enable_preproc_all_ports( sc, PP_APP_ID, PROTO_BIT__ALL );
 
     if (policy_id == _dpd.getDefaultPolicy())
         AppIdAddPortsToStream5Filter(sc, policy_id);

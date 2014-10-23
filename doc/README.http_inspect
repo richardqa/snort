@@ -381,6 +381,53 @@ NOTE: The original client IP from XFF/True-Client-IP in unified2 logs can be vie
 using the tool u2spewfoo. This tool is present in the tools/u2spewfoo directory of 
 snort source tree.
 
+* xff_headers *
+If/When the enable_xff option is present, the xff_headers option specifies a set of custom 'xff'
+headers.  This option allows the definition of up to six custom headers in addition to the
+two default (and always present) X-Forwarded-For and True-Client-IP headers.  The option
+permits both the custom and default headers to be prioritized.  The headers/priority pairs
+are specified as a list.  Lower numerical values imply a higher priority.  The headers do
+not need to be specified in priority order.  Nor do the priorities need to be contiguous.
+Priority values can range from 1 to 255.  The priority values and header names must be unique.
+The header names must not collide with known http headers such as 'host', 'cookie',
+'content-length', etc.
+
+A example of the xff_header syntax is:
+xff_headers { [ x-forwarded-highest-priority 1 ] [ x-forwarded-second-highest-priority 2 ] \
+              [ x-forwarded-lowest-priority-custom 3 ] }
+
+HTTP_Inspect will locate the highest priority xff header and return that one address in the unified2
+log file.  From the example, if both exff_2 and exff_1 exist in the request header, then the exff_1
+value (which has the higher priority) will be logged.
+
+The default X-Forwarded-For and True-Client-IP headers are always present.  They may be explicitly
+specified in the xff_headers config in order to determine their priority.  If not specified, they
+will be automatically added to the xff list as the lowest priority headers.
+
+For example, let us say that we have the following (abbreviated) HTTP request header:
+
+...
+Host: www.snort.org
+X-Forwarded-For: 192.168.1.1
+X-Was-Originally-Forwarded-From: 10.1.1.1
+...
+ 
+With the default xff behavior (no xff_headers), the 'X-Forwarded-For' header would be used to
+provide a 192.168.1.1 Original Client IP address in the unified2 log.  Custom headers are not
+parsed.
+
+With:
+xff_headers { [ x-was-originally-forwarded-from 1 ] [ x-another-forwarding-header 2 ] [ x-forwarded-for 3 ] }
+
+The X-Was-Originally-Forwarded-From header is the highest priority present and its value
+of 10.1.1.1 will be logged as the Original Client IP in the unified2 log.
+
+But with:
+xff_headers { [ x-was-originally-forwarded-from 3 ] [ x-another-forwarding-header 2 ] [ x-forwarded-for 1 ] }
+
+Now the X-Forwarded-For header is the highest priority and its value of 192.168.1.1 is logged.
+
+
 * server_flow_depth [integer] *
 * flow_depth [integer] *  (to be deprecated)
 This specifies the amount of server response payload to inspect. When 
