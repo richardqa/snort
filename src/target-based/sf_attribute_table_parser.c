@@ -28,7 +28,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 39
+#define YY_FLEX_SUBMINOR_VERSION 35
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -66,6 +66,7 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
+typedef uint64_t flex_uint64_t;
 #else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -73,6 +74,7 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
+#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -102,8 +104,6 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
-
-#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -187,7 +187,6 @@ extern FILE *sfatin, *sfatout;
 #define EOB_ACT_LAST_MATCH 2
 
     #define YY_LESS_LINENO(n)
-    #define YY_LINENO_REWIND_TO(ptr)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -353,7 +352,7 @@ void sfatfree (void *  );
 
 /* Begin user sect3 */
 
-#define sfatwrap() 1
+#define sfatwrap(n) 1
 #define YY_SKIP_YYWRAP
 
 typedef unsigned char YY_CHAR;
@@ -379,7 +378,7 @@ static void yy_fatal_error (yyconst char msg[]  );
  */
 #define YY_DO_BEFORE_ACTION \
 	(yytext_ptr) = yy_bp; \
-	sfatleng = (size_t) (yy_cp - yy_bp); \
+	sfatleng = (yy_size_t) (yy_cp - yy_bp); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
@@ -6193,7 +6192,7 @@ int sfat_flex_debug = 0;
 char *sfattext;
 #line 1 "sf_attribute_table_parser.l"
 /*
-** Copyright (C) 2014 Cisco and/or its affiliates. All rights reserved.
+** Copyright (C) 2014-2015 Cisco and/or its affiliates. All rights reserved.
 ** Copyright (C) 2006-2013 Sourcefire, Inc.
 **
 ** This program is free software; you can redistribute it and/or modify
@@ -6267,7 +6266,7 @@ int sfat_parse(void);
 /* Rules Section.
  * All rules are in here prior to second "%%" seperator
  */
-#line 6271 "sf_attribute_table_parser.c"
+#line 6270 "sf_attribute_table_parser.c"
 
 #define INITIAL 0
 #define waiting_for_comma_prior_to_data 1
@@ -6356,7 +6355,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO do { if (fwrite( sfattext, sfatleng, 1, sfatout )) {} } while (0)
+#define ECHO fwrite( sfattext, sfatleng, 1, sfatout )
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -6367,7 +6366,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		size_t n; \
+		yy_size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( sfatin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -6449,6 +6448,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
+#line 101 "sf_attribute_table_parser.l"
+
+#line 6454 "sf_attribute_table_parser.c"
+
 	if ( !(yy_init) )
 		{
 		(yy_init) = 1;
@@ -6475,11 +6478,6 @@ YY_DECL
 		sfat_load_buffer_state( );
 		}
 
-	{
-#line 101 "sf_attribute_table_parser.l"
-
-#line 6482 "sf_attribute_table_parser.c"
-
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
@@ -6496,7 +6494,7 @@ YY_DECL
 yy_match:
 		do
 			{
-			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)] ;
+			register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
 			if ( yy_accept[yy_current_state] )
 				{
 				(yy_last_accepting_state) = yy_current_state;
@@ -6846,7 +6844,7 @@ YY_RULE_SETUP
 #line 187 "sf_attribute_table_parser.l"
 ECHO;
 	YY_BREAK
-#line 6850 "sf_attribute_table_parser.c"
+#line 6848 "sf_attribute_table_parser.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -6976,7 +6974,6 @@ ECHO;
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
-	} /* end of user's declarations */
 } /* end of sfatlex */
 
 /* yy_get_next_buffer - try to read in a new buffer
@@ -7039,7 +7036,7 @@ static int yy_get_next_buffer (void)
 			{ /* Not enough room in the buffer - grow it. */
 
 			/* just a shorter name for the current buffer */
-			YY_BUFFER_STATE b = YY_CURRENT_BUFFER_LVALUE;
+			YY_BUFFER_STATE b = YY_CURRENT_BUFFER;
 
 			int yy_c_buf_p_offset =
 				(int) ((yy_c_buf_p) - b->yy_ch_buf);
@@ -7172,7 +7169,7 @@ static int yy_get_next_buffer (void)
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 	yy_is_jam = (yy_current_state == 8614);
 
-		return yy_is_jam ? 0 : yy_current_state;
+	return yy_is_jam ? 0 : yy_current_state;
 }
 
 #ifndef YY_NO_INPUT
@@ -7223,7 +7220,7 @@ static int yy_get_next_buffer (void)
 				case EOB_ACT_END_OF_FILE:
 					{
 					if ( sfatwrap( ) )
-						return EOF;
+						return 0;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
 						YY_NEW_FILE;
@@ -7563,8 +7560,8 @@ YY_BUFFER_STATE sfat_scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to sfatlex() will
  * scan from a @e copy of @a bytes.
- * @param yybytes the byte buffer to scan
- * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
+ * @param bytes the byte buffer to scan
+ * @param len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
@@ -7572,8 +7569,7 @@ YY_BUFFER_STATE sfat_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_le
 {
 	YY_BUFFER_STATE b;
 	char *buf;
-	yy_size_t n;
-	yy_size_t i;
+	yy_size_t n, i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
